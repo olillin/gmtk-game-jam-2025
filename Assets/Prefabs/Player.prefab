@@ -197,9 +197,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   throwStrength: 15
   spawnDistance: 1
-  pullStrength: 1
+  pullStrength: 10
   maxAnchors: 3
   anchorPrefab: {fileID: 4977636685057181334, guid: 2b802bdba615954c6a11eee7137692b4, type: 3}
+  rope: {fileID: 0}
 --- !u!50 &8540657143793587790
 Rigidbody2D:
   serializedVersion: 5

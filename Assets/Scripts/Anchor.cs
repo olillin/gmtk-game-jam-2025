@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Anchor : MonoBehaviour
@@ -22,12 +21,10 @@ public class Anchor : MonoBehaviour
     private float age = 0;
 
     private Rigidbody2D rb;
-    private SpringJoint2D joint;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        joint = GetComponent<SpringJoint2D>();
     }
 
     void FixedUpdate()
@@ -36,14 +33,6 @@ public class Anchor : MonoBehaviour
         if (!IsAttached && age > maxAge)
         {
             Destroy(gameObject);
-        }
-
-        if (pullingPlayer != null)
-        {
-            joint.distance = Mathf.Max(
-                joint.distance - Time.fixedDeltaTime * pullingPlayer.pullStrength,
-                minDistance
-            );
         }
     }
 
@@ -63,9 +52,17 @@ public class Anchor : MonoBehaviour
     public void StartPullingPlayer(PlayerController player)
     {
         float distanceToPlayer = Vector2.Distance(player.transform.position, transform.position);
-        joint.enabled = true;
-        joint.connectedBody = player.Rigidbody;
-        joint.distance = distanceToPlayer;
         pullingPlayer = player;
+    }
+
+    public void ConnectToRope(Rope rope)
+    {
+        rope.bottom.connectedBelow = gameObject;
+        HingeJoint2D hinge = GetComponent<HingeJoint2D>();
+        RopeSegment segment = rope.bottom;
+        hinge.connectedBody = segment.GetComponent<Rigidbody2D>();
+        hinge.connectedAnchor = new Vector2(0, -rope.SegmentLength);
+
+        hinge.enabled = true;
     }
 }

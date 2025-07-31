@@ -14,6 +14,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private GameObject anchorPrefab;
 
+    [SerializeField]
+    private Rope rope;
+
     private List<Anchor> anchors = new List<Anchor>();
 
     private Rigidbody2D rb;
@@ -61,6 +64,7 @@ public class PlayerController : MonoBehaviour
         GameObject anchorGameObject = Instantiate(anchorPrefab, position, Quaternion.identity);
         Anchor anchor = anchorGameObject.GetComponent<Anchor>();
         Rigidbody2D anchorRb = anchorGameObject.GetComponent<Rigidbody2D>();
+        anchor.ConnectToRope(rope);
 
         anchorRb.linearVelocity = direction * throwStrength;
 
