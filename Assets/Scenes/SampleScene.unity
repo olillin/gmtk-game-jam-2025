@@ -1166,30 +1166,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Anchor Attach
       objectReference: {fileID: 0}
-    - target: {fileID: 6156877858033931333, guid: 2331bbcfef164814cb103222f160c3c1, type: 3}
-      propertyPath: m_ExcludeLayers.m_Bits
-      value: 127
-      objectReference: {fileID: 0}
-    - target: {fileID: 6156877858033931333, guid: 2331bbcfef164814cb103222f160c3c1, type: 3}
-      propertyPath: m_IncludeLayers.m_Bits
-      value: 128
-      objectReference: {fileID: 0}
-    - target: {fileID: 6156877858033931333, guid: 2331bbcfef164814cb103222f160c3c1, type: 3}
-      propertyPath: m_CallbackLayers.m_Bits
-      value: 128
-      objectReference: {fileID: 0}
-    - target: {fileID: 6156877858033931333, guid: 2331bbcfef164814cb103222f160c3c1, type: 3}
-      propertyPath: m_ForceSendLayers.m_Bits
-      value: 128
-      objectReference: {fileID: 0}
-    - target: {fileID: 6156877858033931333, guid: 2331bbcfef164814cb103222f160c3c1, type: 3}
-      propertyPath: m_ForceReceiveLayers.m_Bits
-      value: 128
-      objectReference: {fileID: 0}
-    - target: {fileID: 6156877858033931333, guid: 2331bbcfef164814cb103222f160c3c1, type: 3}
-      propertyPath: m_ContactCaptureLayers.m_Bits
-      value: 128
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
