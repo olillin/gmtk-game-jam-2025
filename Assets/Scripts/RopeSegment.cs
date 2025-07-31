@@ -3,6 +3,11 @@ using UnityEngine;
 public class RopeSegment : MonoBehaviour
 {
     private HingeJoint2D hinge;
+    public HingeJoint2D Hinge
+    {
+        get => hinge;
+    }
+
     public GameObject connectedAbove,
         connectedBelow;
 
@@ -16,7 +21,7 @@ public class RopeSegment : MonoBehaviour
         {
             aboveSegment.connectedBelow = gameObject;
             float bottom = connectedAbove.GetComponent<BoxCollider2D>().bounds.size.y;
-            hinge.connectedAnchor = new Vector2(0, -0.5f);
+            hinge.connectedAnchor = new Vector2(0, -bottom);
         }
         else
         {
