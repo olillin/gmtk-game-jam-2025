@@ -29,11 +29,17 @@ public class Anchor : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    public void Attach()
     {
         rb.constraints |= RigidbodyConstraints2D.FreezePosition;
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 0;
         attached = true;
+    }
+
+    public void Attach(Transform snapTo)
+    {
+        Attach();
+        transform.position = snapTo.position;
     }
 }

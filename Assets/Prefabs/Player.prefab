@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: -6129272359446949298}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -195,7 +195,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50d706f675b176e22a8fb2a4828f7a94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  throwStrength: 5
+  throwStrength: 15
+  spawnDistance: 1
+  pullStrength: 1
+  maxAnchors: 3
   anchorPrefab: {fileID: 4977636685057181334, guid: 2b802bdba615954c6a11eee7137692b4, type: 3}
 --- !u!50 &8540657143793587790
 Rigidbody2D:
@@ -223,7 +226,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &-6129272359446949298
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -240,20 +243,20 @@ BoxCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 192
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 63
   m_ForceReceiveLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 63
   m_ContactCaptureLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 63
   m_CallbackLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 63
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0

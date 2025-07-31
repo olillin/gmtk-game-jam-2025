@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public float throwStrength = 20.0f;
     public float spawnDistance = 2.0f;
     public float pullStrength = 1.0f;
+    public int maxAnchors = 3;
 
     [SerializeField]
     private GameObject anchorPrefab;
@@ -25,7 +26,16 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(1))
+        {
+            DeleteAllAnchors();
+        }
+
+        if (Input.GetMouseButton(1))
+        {
+            PullAnchors();
+        }
+        else if (Input.GetMouseButtonUp(0))
         {
             Vector2 mousePos = Input.mousePosition;
             Vector2 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
@@ -33,19 +43,14 @@ public class PlayerController : MonoBehaviour
             Vector2 mouseDelta = mousePos - playerScreenPos;
             ThrowRope(mouseDelta.normalized);
         }
-
-        if (Input.GetMouseButton(1))
-        {
-            PullAnchors();
-        }
-        else if (Input.GetMouseButtonUp(1))
-        {
-            DeleteAllAnchors();
-        }
     }
 
     void ThrowRope(Vector2 direction)
     {
+        List<Anchor> currentAnchors = FindAnchors();
+        if (currentAnchors.Count >= maxAnchors)
+            return;
+
         Vector2 position = (Vector2)transform.position + direction * spawnDistance;
         GameObject anchor = Instantiate(anchorPrefab, position, Quaternion.identity);
         Rigidbody2D anchorRb = anchor.GetComponent<Rigidbody2D>();
@@ -55,13 +60,13 @@ public class PlayerController : MonoBehaviour
 
     void PullAnchors()
     {
-        List<Transform> anchors = FindAnchors();
+        List<Anchor> anchors = FindAttachedAnchors();
 
         if (anchors.Count == 0)
             return;
 
         List<Vector2> relativePositions = anchors.ConvertAll<Vector2>(anchor =>
-            anchor.position - transform.position
+            anchor.transform.position - transform.position
         );
         Vector2 direction = new Vector2(
             relativePositions.Average(pos => pos.x),
@@ -78,23 +83,25 @@ public class PlayerController : MonoBehaviour
 
     public void DeleteAllAnchors()
     {
-        foreach (Transform anchor in FindAnchors())
+        foreach (Anchor anchor in FindAnchors())
         {
             Destroy(anchor.gameObject);
         }
     }
 
-    List<Transform> FindAnchors()
+    List<Anchor> FindAttachedAnchors()
     {
-        List<Transform> anchors = new List<Transform>();
+        return FindAnchors().FindAll(anchor => anchor.IsAttached);
+    }
+
+    List<Anchor> FindAnchors()
+    {
+        List<Anchor> anchors = new List<Anchor>();
 
         foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag("Anchor"))
         {
             Anchor anchor = gameObject.GetComponent<Anchor>();
-            if (anchor.IsAttached)
-            {
-                anchors.Add(gameObject.transform);
-            }
+            anchors.Add(anchor);
         }
 
         return anchors;
