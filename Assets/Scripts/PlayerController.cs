@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private GameObject anchorPrefab;
 
+    [SerializeField]
+    private Transform spawnPoint;
+
     private Rigidbody2D rb;
     private Camera mainCamera;
 
@@ -43,6 +46,14 @@ public class PlayerController : MonoBehaviour
             Vector2 mouseDelta = mousePos - playerScreenPos;
             ThrowRope(mouseDelta.normalized);
         }
+    }
+
+    public void Respawn()
+    {
+        DeleteAllAnchors();
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        transform.position = spawnPoint.position;
     }
 
     void ThrowRope(Vector2 direction)
