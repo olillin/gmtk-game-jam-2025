@@ -10,10 +10,17 @@ public class PlayerController : MonoBehaviour
     public float pullStrength = 1.0f;
     public int maxAnchors = 3;
 
+    [Space]
     [SerializeField]
     private GameObject anchorPrefab;
 
+    private List<Anchor> anchors = new List<Anchor>();
+
     private Rigidbody2D rb;
+    public Rigidbody2D Rigidbody
+    {
+        get => rb;
+    }
     private Camera mainCamera;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -30,10 +37,10 @@ public class PlayerController : MonoBehaviour
         {
             DeleteAllAnchors();
         }
-
         if (Input.GetMouseButton(1))
         {
-            PullAnchors();
+            if (!anchors.Any(anchor => anchor.IsPulling))
+                StartPullingAnchors();
         }
         else if (Input.GetMouseButtonUp(0))
         {
@@ -47,63 +54,43 @@ public class PlayerController : MonoBehaviour
 
     void ThrowRope(Vector2 direction)
     {
-        List<Anchor> currentAnchors = FindAnchors();
-        if (currentAnchors.Count >= maxAnchors)
+        if (anchors.Count >= maxAnchors)
             return;
 
         Vector2 position = (Vector2)transform.position + direction * spawnDistance;
-        GameObject anchor = Instantiate(anchorPrefab, position, Quaternion.identity);
-        Rigidbody2D anchorRb = anchor.GetComponent<Rigidbody2D>();
+        GameObject anchorGameObject = Instantiate(anchorPrefab, position, Quaternion.identity);
+        Anchor anchor = anchorGameObject.GetComponent<Anchor>();
+        Rigidbody2D anchorRb = anchorGameObject.GetComponent<Rigidbody2D>();
 
         anchorRb.linearVelocity = direction * throwStrength;
+
+        anchors.Add(anchor);
     }
 
-    void PullAnchors()
+    void StartPullingAnchors()
     {
-        List<Anchor> anchors = FindAttachedAnchors();
+        List<Anchor> attachedAnchors = GetAttachedAnchors();
 
-        if (anchors.Count == 0)
+        if (attachedAnchors.Find(anchor => anchor.IsPulling) != null)
             return;
 
-        List<Vector2> relativePositions = anchors.ConvertAll<Vector2>(anchor =>
-            anchor.transform.position - transform.position
-        );
-        Vector2 direction = new Vector2(
-            relativePositions.Average(pos => pos.x),
-            relativePositions.Average(pos => pos.y)
-        ).normalized;
-        Vector2 posSum = new Vector2(
-            relativePositions.Sum(pos => pos.x),
-            relativePositions.Sum(pos => pos.y)
-        );
-        Vector2 force = direction * posSum.magnitude;
-
-        rb.AddForce(force * pullStrength);
+        foreach (Anchor anchor in attachedAnchors)
+        {
+            anchor.StartPullingPlayer(this);
+        }
     }
 
     public void DeleteAllAnchors()
     {
-        foreach (Anchor anchor in FindAnchors())
+        foreach (Anchor anchor in anchors)
         {
             Destroy(anchor.gameObject);
         }
+        anchors.Clear();
     }
 
-    List<Anchor> FindAttachedAnchors()
+    List<Anchor> GetAttachedAnchors()
     {
-        return FindAnchors().FindAll(anchor => anchor.IsAttached);
-    }
-
-    List<Anchor> FindAnchors()
-    {
-        List<Anchor> anchors = new List<Anchor>();
-
-        foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag("Anchor"))
-        {
-            Anchor anchor = gameObject.GetComponent<Anchor>();
-            anchors.Add(anchor);
-        }
-
-        return anchors;
+        return anchors.FindAll(anchor => anchor.IsAttached);
     }
 }
