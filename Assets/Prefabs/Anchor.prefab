@@ -94,8 +94,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7360028005370434315}
-  - component: {fileID: 2920717457834272636}
   - component: {fileID: -6554865492191489069}
+  - component: {fileID: -5855781247458668665}
+  - component: {fileID: 2920717457834272636}
   - component: {fileID: 8222976421954299607}
   - component: {fileID: -1681305896151960142}
   - component: {fileID: -2478616377447705815}
@@ -122,6 +123,31 @@ Transform:
   - {fileID: 335728120451149840}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-6554865492191489069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4977636685057181334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a822a93f2fc7f4782eff8527ce6e4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxAge: 5
+--- !u!114 &-5855781247458668665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4977636685057181334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab47716306d6204478ac95684ffd783c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!212 &2920717457834272636
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -177,20 +203,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-6554865492191489069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4977636685057181334}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87a822a93f2fc7f4782eff8527ce6e4e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxAge: 5
-  minDistance: 1
 --- !u!58 &8222976421954299607
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -242,7 +254,7 @@ Rigidbody2D:
   m_Mass: 0.5
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0.5
   m_Material: {fileID: 6200000, guid: 46d385353837ec94a93d35c63863b41e, type: 2}
   m_IncludeLayers:
     serializedVersion: 2

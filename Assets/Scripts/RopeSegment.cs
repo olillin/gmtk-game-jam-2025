@@ -1,44 +1,59 @@
 using UnityEngine;
 
-public class RopeSegment : MonoBehaviour
+public class RopeSegment : MonoBehaviour, IRopeSegment
 {
-    private HingeJoint2D hinge;
+    private Rigidbody2D connectedAbove = null;
+    public Rigidbody2D ConnectedAbove
+    {
+        get => connectedAbove;
+    }
+    private Rigidbody2D connectedBelow = null;
+    public Rigidbody2D ConnectedBelow
+    {
+        get => connectedBelow;
+    }
 
-    public GameObject connectedAbove,
-        connectedBelow;
+    public Rope rope { get; set; }
 
-    public Rope rope;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        hinge = GetComponent<HingeJoint2D>();
-        connectedAbove = hinge.connectedBody.gameObject;
-        RopeSegment aboveSegment = connectedAbove.GetComponent<RopeSegment>();
-        if (aboveSegment != null)
-        {
-            aboveSegment.connectedBelow = gameObject;
+        var hinge = GetComponent<HingeJoint2D>();
+        if (hinge != null)
             hinge.connectedAnchor = new Vector2(0, -rope.SegmentLength);
-        }
-        else
-        {
-            hinge.connectedAnchor = new Vector2(0, 0);
-        }
+        ConnectAbove(connectedAbove?.GetComponent<Rigidbody2D>());
+        ConnectBelow(connectedBelow?.GetComponent<Rigidbody2D>());
     }
 
     void OnDestroy()
     {
-        var aboveSegment = connectedAbove.GetComponent<RopeSegment>();
-        if (aboveSegment != null)
-            aboveSegment.connectedBelow = connectedBelow;
+        RopeHelper.RemoveFromRope(this);
+    }
 
-        var belowSegment = connectedBelow.GetComponent<RopeSegment>();
-        if (belowSegment != null)
-        {
-            belowSegment.connectedAbove = connectedAbove;
-            belowSegment.hinge.connectedBody = hinge.connectedBody;
-        }
+    public IRopeSegment AppendAbove(IRopeSegment segment) => RopeHelper.AppendAbove(this, segment);
 
-        rope.segmentCount--;
+    public IRopeSegment AppendAbove() => RopeHelper.AppendAbove(this);
+
+    public IRopeSegment AppendBelow(IRopeSegment segment) => RopeHelper.AppendBelow(this, segment);
+
+    public IRopeSegment AppendBelow() => RopeHelper.AppendBelow(this);
+
+    public void ConnectAbove(Rigidbody2D body)
+    {
+        GetComponent<HingeJoint2D>().connectedBody = body;
+        Debug.Log("Connect above" + connectedAbove + body);
+        // if (connectedAbove == body?.GetComponent<Rigidbody2D>())
+        //     return;
+        connectedAbove = body;
+        RopeSegment segmentAbove = body?.GetComponent<RopeSegment>();
+        if (segmentAbove != null)
+            segmentAbove.ConnectBelow(GetComponent<Rigidbody2D>());
+    }
+
+    public void ConnectBelow(Rigidbody2D body)
+    {
+        connectedBelow = body;
+        // RopeSegment segmentBelow = body?.GetComponent<RopeSegment>();
+        // if (segmentBelow != null)
+        //     segmentBelow.ConnectAbove(GetComponent<Rigidbody2D>());
     }
 }

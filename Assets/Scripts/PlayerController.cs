@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -33,18 +31,13 @@ public class PlayerController : MonoBehaviour
         mainCamera = Camera.main;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetMouseButtonUp(1))
-        {
             DeleteAllAnchors();
-        }
+
         if (Input.GetMouseButton(1))
-        {
-            if (!anchors.Any(anchor => anchor.IsPulling))
-                StartPullingAnchors();
-        }
+            StartPullingAnchors();
         else if (Input.GetMouseButtonUp(0))
         {
             Vector2 mousePos = Input.mousePosition;
@@ -64,24 +57,21 @@ public class PlayerController : MonoBehaviour
         GameObject anchorGameObject = Instantiate(anchorPrefab, position, Quaternion.identity);
         Anchor anchor = anchorGameObject.GetComponent<Anchor>();
         Rigidbody2D anchorRb = anchorGameObject.GetComponent<Rigidbody2D>();
-        anchor.ConnectToRope(rope);
+        rope.top.AppendAbove(anchor.GetComponent<RopeSegment>());
 
         anchorRb.linearVelocity = direction * throwStrength;
 
         anchors.Add(anchor);
     }
 
+    public void RemoveAnchor(Anchor anchor)
+    {
+        anchors.Remove(anchor);
+    }
+
     void StartPullingAnchors()
     {
         List<Anchor> attachedAnchors = GetAttachedAnchors();
-
-        if (attachedAnchors.Find(anchor => anchor.IsPulling) != null)
-            return;
-
-        foreach (Anchor anchor in attachedAnchors)
-        {
-            anchor.StartPullingPlayer(this);
-        }
     }
 
     public void DeleteAllAnchors()
