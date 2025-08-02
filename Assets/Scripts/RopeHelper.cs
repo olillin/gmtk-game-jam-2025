@@ -2,49 +2,39 @@ using UnityEngine;
 
 public class RopeHelper
 {
-    public static IRopeSegment AppendAbove(IRopeSegment self, IRopeSegment segment)
+    public static RopeSegment AppendAbove(RopeSegment self, RopeSegment segment)
     {
-        segment.ConnectAbove(self.ConnectedAbove);
-        self.ConnectAbove(segment.gameObject.GetComponent<Rigidbody2D>());
+        Rigidbody2D segmentBody = segment.gameObject.GetComponent<Rigidbody2D>();
         segment.ConnectBelow(self.gameObject.GetComponent<Rigidbody2D>());
+        if (self.ConnectedAbove != null)
+        {
+            segment.ConnectAbove(self.ConnectedAbove);
+            self.ConnectedAbove.GetComponent<RopeSegment>()?.ConnectBelow(segmentBody);
+        }
+        self.ConnectAbove(segmentBody);
         return segment;
     }
 
-    public static IRopeSegment AppendAbove(IRopeSegment self) =>
+    public static RopeSegment AppendAbove(RopeSegment self) =>
         AppendAbove(self, CreateSegment(self));
 
-    public static IRopeSegment AppendBelow(IRopeSegment self, IRopeSegment segment)
+    public static RopeSegment AppendBelow(RopeSegment self, RopeSegment segment)
     {
+        Rigidbody2D segmentBody = segment.gameObject.GetComponent<Rigidbody2D>();
         segment.ConnectAbove(self.gameObject.GetComponent<Rigidbody2D>());
-        self.ConnectBelow(segment.gameObject.GetComponent<Rigidbody2D>());
-        segment.ConnectBelow(self.ConnectedBelow);
+        if (self.ConnectedBelow != null)
+        {
+            segment.ConnectBelow(self.ConnectedBelow);
+            self.ConnectedBelow.GetComponent<RopeSegment>()?.ConnectAbove(segmentBody);
+        }
+        self.ConnectBelow(segmentBody);
         return segment;
     }
 
-    public static IRopeSegment AppendBelow(IRopeSegment self) =>
+    public static RopeSegment AppendBelow(RopeSegment self) =>
         AppendBelow(self, CreateSegment(self));
 
-    public static void RemoveFromRope(RopeSegment segment)
-    {
-        var aboveSegment = segment.ConnectedAbove?.GetComponent<RopeSegment>();
-        if (aboveSegment != null)
-        {
-            segment.ConnectBelow(null);
-            aboveSegment.ConnectBelow(segment.ConnectedBelow);
-        }
-
-        var belowSegment = segment.ConnectedBelow?.GetComponent<RopeSegment>();
-        if (belowSegment != null)
-        {
-            segment.ConnectBelow(null);
-            belowSegment.ConnectBelow(segment.ConnectedAbove);
-        }
-
-        segment.rope.segmentCount--;
-        segment.rope = null;
-    }
-
-    public static RopeSegment CreateSegment(IRopeSegment self)
+    public static RopeSegment CreateSegment(RopeSegment self)
     {
         self.rope.segmentCount++;
 

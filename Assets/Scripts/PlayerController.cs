@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -15,6 +16,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private Rope rope;
 
+    [SerializeField]
+    private RopeSegment kinematicRopeSegment;
+
     private List<Anchor> anchors = new List<Anchor>();
 
     private Rigidbody2D rb;
@@ -23,21 +27,38 @@ public class PlayerController : MonoBehaviour
         get => rb;
     }
     private Camera mainCamera;
+    private RopeSegment dynamicRopeSegment;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         mainCamera = Camera.main;
+
+        dynamicRopeSegment = GetComponent<RopeSegment>();
+        dynamicRopeSegment.rope = rope;
     }
 
     void Update()
     {
-        if (Input.GetMouseButtonUp(1))
+        KeyCode pullButton = KeyCode.Space;
+        if (Input.GetKeyUp(pullButton))
+        {
+            Debug.Log("End pull");
+            MoveRopeToKinematic();
             DeleteAllAnchors();
-
-        if (Input.GetMouseButton(1))
-            StartPullingAnchors();
+            rope.contract = false;
+        }
+        else if (Input.GetKeyDown(pullButton))
+        {
+            Debug.Log("Start pull");
+            MoveRopeToDynamic();
+            rope.contract = true;
+        }
+        if (Input.GetKey(pullButton))
+        {
+            MoveTowardsRope();
+        }
         else if (Input.GetMouseButtonUp(0))
         {
             Vector2 mousePos = Input.mousePosition;
@@ -46,6 +67,8 @@ public class PlayerController : MonoBehaviour
             Vector2 mouseDelta = mousePos - playerScreenPos;
             ThrowRope(mouseDelta.normalized);
         }
+
+        rope.autoExtend = HasUnattachedAnchors();
     }
 
     void ThrowRope(Vector2 direction)
@@ -57,21 +80,55 @@ public class PlayerController : MonoBehaviour
         GameObject anchorGameObject = Instantiate(anchorPrefab, position, Quaternion.identity);
         Anchor anchor = anchorGameObject.GetComponent<Anchor>();
         Rigidbody2D anchorRb = anchorGameObject.GetComponent<Rigidbody2D>();
-        rope.top.AppendAbove(anchor.GetComponent<RopeSegment>());
+
+        RopeSegment anchorSegment = anchor.GetComponent<RopeSegment>();
+        anchorSegment.rope = rope;
+        rope.bottom.AppendAbove(anchorSegment);
 
         anchorRb.linearVelocity = direction * throwStrength;
 
         anchors.Add(anchor);
     }
 
+    void MoveTowardsRope()
+    {
+        RopeSegment segment = dynamicRopeSegment;
+        Rigidbody2D body = rb;
+        Vector2 position = segment.transform.position;
+        Vector2 abovePosition = (Vector2)segment.ConnectedAbove.transform.position - position;
+        Vector2 belowPosition = (Vector2)segment.ConnectedBelow.transform.position - position;
+
+        // float v = Mathf.Acos(
+        //     Vector2.Dot(abovePosition, belowPosition)
+        //         / (abovePosition.magnitude * belowPosition.magnitude)
+        // );
+        // float angle = Mathf.Atan(abovePosition.y / abovePosition.x) + v / 2;
+        // float x = Mathf.Cos(angle);
+        // float y = Mathf.Sin(angle);
+        // Vector2 direction = new Vector2(x, y);
+        // // Vector2 force = direction * pullStrength;
+
+        body.AddForce(abovePosition.normalized * pullStrength);
+        body.AddForce(belowPosition.normalized * pullStrength);
+    }
+
+    public bool HasUnattachedAnchors() => anchors.Any(anchor => !anchor.IsAttached);
+
     public void RemoveAnchor(Anchor anchor)
     {
         anchors.Remove(anchor);
     }
 
-    void StartPullingAnchors()
+    void MoveRopeToDynamic()
     {
-        List<Anchor> attachedAnchors = GetAttachedAnchors();
+        if (rope.Contains(kinematicRopeSegment))
+            rope.ReplaceSegment(kinematicRopeSegment, dynamicRopeSegment);
+    }
+
+    void MoveRopeToKinematic()
+    {
+        if (rope.Contains(dynamicRopeSegment))
+            rope.ReplaceSegment(dynamicRopeSegment, kinematicRopeSegment);
     }
 
     public void DeleteAllAnchors()

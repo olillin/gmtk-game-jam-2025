@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab47716306d6204478ac95684ffd783c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canContract: 1
 --- !u!50 &4023687275921432133
 Rigidbody2D:
   serializedVersion: 5
@@ -98,8 +99,8 @@ HingeJoint2D:
     m_MaximumMotorForce: 10000
   m_UseLimits: 0
   m_AngleLimits:
-    m_LowerAngle: 0
-    m_UpperAngle: 359
+    m_LowerAngle: -90
+    m_UpperAngle: 90
 --- !u!58 &1088868632895882086
 CircleCollider2D:
   m_ObjectHideFlags: 0

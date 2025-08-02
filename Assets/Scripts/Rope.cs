@@ -1,16 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class Rope : MonoBehaviour
 {
-    /// <summary>
-    /// How many percent over the length of a segment a segment is allowed to
-    /// stretch before adding a new one.
-    /// </summary>
-    public int maxSegmentStretch = 10;
     public int maxSegments = 50;
-    public bool autoExtend = true;
 
     [SerializeField]
     private float segmentLength = 0.6f;
@@ -19,16 +14,26 @@ public class Rope : MonoBehaviour
         get => segmentLength;
     }
 
+    public RopeSegment hook;
+
     [Space]
-    public Rigidbody2D hook;
+    /// <summary>
+    /// How far segments may be apart before they are considered stretched
+    /// </summary>
+    public float maxStretchDistance = 1.0f;
+    public bool autoExtend = false;
+
+    public float squishDistance = 0.1f;
+
+    [Space]
+    public float contractForce = 1.0f;
+    public bool contract = false;
 
     [Space]
     public RopeSegment top;
     public RopeSegment bottom;
     public GameObject segmentPrefab;
-    public int segmentCount = 10;
-
-    private bool wasStretched = false;
+    public int segmentCount = 2;
 
     private LineRenderer lineRenderer;
 
@@ -37,7 +42,7 @@ public class Rope : MonoBehaviour
     void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
-        GenerateRope();
+        GenerateRopeLoop();
     }
 
     void Update()
@@ -47,46 +52,89 @@ public class Rope : MonoBehaviour
         if (manualTimer > 0.1)
         {
             if (Input.GetKey(KeyCode.W))
-                ExtendRope();
+                ExtendFromBottom();
             else if (Input.GetKey(KeyCode.S))
                 ShortenRope();
             manualTimer = 0;
+        }
+
+        // if (contract)
+        //     ContractSegments();
+    }
+
+    private void ContractSegments()
+    {
+        foreach (RopeSegment segment in GetSegments())
+        {
+            Rigidbody2D body = segment.GetComponent<Rigidbody2D>();
+            Vector2 position = segment.transform.position;
+            Vector2 abovePosition = (Vector2)segment.ConnectedAbove.transform.position - position;
+            Vector2 belowPosition = (Vector2)segment.ConnectedBelow.transform.position - position;
+
+            float angle =
+                Mathf.Atan(abovePosition.y / abovePosition.x)
+                + Mathf.Acos(Vector2.Dot(abovePosition, belowPosition)) / 2;
+            float x = Mathf.Cos(angle);
+            float y = Mathf.Sin(angle);
+            Vector2 direction = new Vector2(x, y);
+            Vector2 force = direction * contractForce;
+
+            body.AddForce(force);
         }
     }
 
     void LateUpdate()
     {
-        // bool isStretched = IsStretched();
-        // if (autoExtend && isStretched && wasStretched)
-        //     ExtendRope();
-        // wasStretched = isStretched && !wasStretched;
+        if (autoExtend && IsBottomStretched())
+            ExtendFromBottom();
+        if (autoExtend && IsTopStretched())
+            ExtendFromTop();
 
         UpdateLine();
+
+        int i = 0;
+        foreach (var segment in GetSegments())
+        {
+            segment.transform.name = i++.ToString();
+        }
     }
 
-    void GenerateRope()
+    void GenerateRopeLoop()
     {
         RopeSegment prevSegment = RopeHelper.CreateSegment(this);
-        prevSegment.ConnectAbove(hook);
+        Rigidbody2D hookBody = hook.GetComponent<Rigidbody2D>();
+        prevSegment.ConnectAbove(hookBody);
         top = prevSegment;
 
-        // for (int i = 0; i < segmentCount; i++)
-        // {
-        RopeSegment newSegment = prevSegment.AppendBelow() as RopeSegment;
-
+        RopeSegment newSegment = prevSegment.AppendBelow();
         prevSegment = newSegment;
-        // }
-        newSegment = prevSegment.AppendBelow() as RopeSegment;
-        bottom = newSegment;
+
+        bottom = prevSegment;
+        bottom.ConnectBelow(hookBody);
+
+        hook.ConnectAbove(bottom.GetComponent<Rigidbody2D>());
+        hook.ConnectBelow(top.GetComponent<Rigidbody2D>());
     }
 
-    /** Add a new segment to the rope */
-    public void ExtendRope()
+    /** Add a new segment to the bottom of the rope */
+    public void ExtendFromBottom()
     {
         if (segmentCount >= maxSegments)
             return;
 
-        RopeSegment newSegment = top.AppendAbove() as RopeSegment;
+        RopeSegment newSegment = bottom.AppendBelow();
+        bottom = newSegment;
+
+        segmentCount++;
+    }
+
+    /** Add a new segment to the top of the rope */
+    public void ExtendFromTop()
+    {
+        if (segmentCount >= maxSegments)
+            return;
+
+        RopeSegment newSegment = top.AppendAbove();
         top = newSegment;
 
         segmentCount++;
@@ -106,40 +154,60 @@ public class Rope : MonoBehaviour
 
     public void CancelRopeVelocity()
     {
-        RopeSegment segment = top;
-        while (segment != null)
+        foreach (RopeSegment segment in GetSegments())
         {
-            GameObject next = segment.ConnectedBelow.gameObject;
-            if (next == null)
-                break;
             segment.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
-            segment = next.GetComponent<RopeSegment>();
         }
     }
 
-    float AverageSegmentDistance()
+    bool IsTopStretched()
     {
-        float sum = 0;
-        int count = 0;
-        foreach (float distance in GetSegmentDistances())
+        Anchor anchor = null;
+        var segments = hook.GetSegmentsBelowUntil(segment =>
         {
-            sum += distance;
-            count++;
-        }
-        return sum / count;
+            if (segment.gameObject.tag != "Anchor")
+                return false;
+            anchor = segment.GetComponent<Anchor>();
+            return true;
+        });
+        Debug.Log(
+            "Top segments: "
+                + string.Join(
+                    ',',
+                    Array.ConvertAll(segments.ToArray(), segment => segment.transform.name)
+                )
+        );
+        if (anchor != null && anchor.IsAttached)
+            return false;
+        return CalculateDistances(segments).Any(distance => distance > maxStretchDistance);
     }
 
-    bool IsStretched()
+    bool IsBottomStretched()
     {
-        float maxStretchDistance = (1 + maxSegmentStretch / 100.0f) * segmentLength;
-
-        return GetSegmentDistances().Any(distance => distance > maxStretchDistance);
+        Anchor anchor = null;
+        var segments = hook.GetSegmentsAboveUntil(segment =>
+        {
+            if (segment.gameObject.tag != "Anchor")
+                return false;
+            anchor = segment.GetComponent<Anchor>();
+            return true;
+        });
+        Debug.Log(
+            "Bottom segments: "
+                + string.Join(
+                    ',',
+                    Array.ConvertAll(segments.ToArray(), segment => segment.transform.name)
+                )
+        );
+        if (anchor != null && anchor.IsAttached)
+            return false;
+        return CalculateDistances(segments).Any(distance => distance > maxStretchDistance);
     }
 
-    public IEnumerable<float> GetSegmentDistances()
+    public static IEnumerable<float> CalculateDistances(IEnumerable<RopeSegment> segments)
     {
-        IRopeSegment prevSegment = null;
-        foreach (IRopeSegment segment in GetSegments())
+        RopeSegment prevSegment = null;
+        foreach (RopeSegment segment in segments)
         {
             if (prevSegment != null)
             {
@@ -162,7 +230,7 @@ public class Rope : MonoBehaviour
     {
         List<Vector3> positions = new List<Vector3>();
 
-        foreach (IRopeSegment segment in GetSegments())
+        foreach (RopeSegment segment in GetSegments())
         {
             positions.Add(segment.transform.position);
         }
@@ -171,21 +239,37 @@ public class Rope : MonoBehaviour
         lineRenderer.positionCount = positions.Count;
     }
 
-    public IEnumerable<IRopeSegment> GetSegments()
+    public IEnumerable<RopeSegment> GetSegments() => top.GetSegmentsBelow();
+
+    public void RemoveSegment(RopeSegment segment)
     {
-        IRopeSegment segment = top;
-        HashSet<IRopeSegment> visited = new HashSet<IRopeSegment>();
-        int maxIterations = 100;
-        int iterations = 0;
-        while (segment != null && !visited.Contains(segment) && maxIterations < iterations)
-        {
-            iterations++;
-            visited.Add(segment);
-            yield return segment;
-            GameObject next = segment.ConnectedBelow?.gameObject;
-            if (next == null)
-                break;
-            segment = next.GetComponent<RopeSegment>();
-        }
+        if (segment == top)
+            top = segment.ConnectedBelow?.GetComponent<RopeSegment>();
+        if (segment == bottom)
+            bottom = segment.ConnectedAbove?.GetComponent<RopeSegment>();
+
+        var aboveSegment = segment.ConnectedAbove?.GetComponent<RopeSegment>();
+        var belowSegment = segment.ConnectedBelow?.GetComponent<RopeSegment>();
+
+        if (aboveSegment != null)
+            aboveSegment.ConnectBelow(segment.ConnectedBelow);
+
+        if (belowSegment != null)
+            belowSegment.ConnectAbove(segment.ConnectedAbove);
+
+        segment.ConnectBelow(null);
+        segment.ConnectAbove(null);
+
+        segmentCount--;
+        segment.rope = null;
     }
+
+    public void ReplaceSegment(RopeSegment oldSegment, RopeSegment newSegment)
+    {
+        RopeSegment above = oldSegment.ConnectedAbove.GetComponent<RopeSegment>();
+        RemoveSegment(oldSegment);
+        above.AppendBelow(newSegment);
+    }
+
+    public bool Contains(RopeSegment segment) => GetSegments().Any(s => s == segment);
 }

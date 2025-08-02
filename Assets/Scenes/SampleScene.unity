@@ -387,11 +387,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!50 &1213713775 stripped
-Rigidbody2D:
-  m_CorrespondingSourceObject: {fileID: 8540657143793587790, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
-  m_PrefabInstance: {fileID: 2526872115302702285}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1300486836
 GameObject:
   m_ObjectHideFlags: 0
@@ -794,6 +789,17 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &1571847244 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7274655390958837228, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
+  m_PrefabInstance: {fileID: 2526872115302702285}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab47716306d6204478ac95684ffd783c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1881278361
 GameObject:
   m_ObjectHideFlags: 0
@@ -1081,6 +1087,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6477979289460524346, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
+      propertyPath: m_ConnectedAnchor.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6477979289460524346, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
+      propertyPath: m_ConnectedAnchor.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6477979289460524346, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
+      propertyPath: m_AngleLimits.m_LowerAngle
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 6477979289460524346, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
+      propertyPath: m_AngleLimits.m_UpperAngle
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 6477979289460524346, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
+      propertyPath: m_AutoConfigureConnectedAnchor
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7116510093291619618, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
       propertyPath: rope
       value: 
@@ -1128,6 +1154,14 @@ PrefabInstance:
     - target: {fileID: 7858324496716451772, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9020488519026747668, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
+      propertyPath: m_AngleLimits.m_LowerAngle
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 9020488519026747668, guid: 526a03d61e8b74543aad77eeedbb57eb, type: 3}
+      propertyPath: m_AngleLimits.m_UpperAngle
+      value: 90
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1239,10 +1273,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2947743971414437546, guid: ea4701189c440b440a5feb1a82c332c7, type: 3}
+      propertyPath: m_Loop
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3209366459656075641, guid: ea4701189c440b440a5feb1a82c332c7, type: 3}
       propertyPath: hook
       value: 
-      objectReference: {fileID: 1213713775}
+      objectReference: {fileID: 1571847244}
+    - target: {fileID: 3209366459656075641, guid: ea4701189c440b440a5feb1a82c332c7, type: 3}
+      propertyPath: squishDistance
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 7425307059775925185, guid: ea4701189c440b440a5feb1a82c332c7, type: 3}
       propertyPath: m_Name
       value: Rope

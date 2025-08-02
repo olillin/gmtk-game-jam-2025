@@ -30,7 +30,9 @@ public class Anchor : MonoBehaviour
 
     void OnDestroy()
     {
-        PlayerController player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+        PlayerController player = GameObject
+            .FindWithTag("Player")
+            ?.GetComponent<PlayerController>();
         player?.RemoveAnchor(this);
     }
 
