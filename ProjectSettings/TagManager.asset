@@ -40,8 +40,20 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 3333288501
+    locked: 0
+  - name: BackgroundElements
+    uniqueID: 3578764157
+    locked: 0
+  - name: Rope
+    uniqueID: 223459879
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Player
+    uniqueID: 1214606759
     locked: 0
   m_RenderingLayers:
   - Default

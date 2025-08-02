@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -16,29 +15,37 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private Transform spawnPoint;
 
+    [Header("Controls")]
+    public KeyCode pullButton = KeyCode.Space;
+    public KeyCode throwButton = KeyCode.Mouse0;
+    public KeyCode undoButton = KeyCode.Q;
+    public KeyCode undoAllButton = KeyCode.A;
+
     private Rigidbody2D rb;
     private Camera mainCamera;
+    private LineRenderer lineRenderer;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         mainCamera = Camera.main;
+        lineRenderer = GetComponent<LineRenderer>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonUp(1))
+        if (Input.GetKeyUp(pullButton))
         {
             DeleteAllAnchors();
         }
 
-        if (Input.GetMouseButton(1))
+        if (Input.GetKey(pullButton))
         {
             PullAnchors();
         }
-        else if (Input.GetMouseButtonUp(0))
+        else if (Input.GetKeyUp(throwButton))
         {
             Vector2 mousePos = Input.mousePosition;
             Vector2 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
@@ -46,6 +53,17 @@ public class PlayerController : MonoBehaviour
             Vector2 mouseDelta = mousePos - playerScreenPos;
             ThrowRope(mouseDelta.normalized);
         }
+
+        if (Input.GetKeyDown(undoButton))
+        {
+            DeleteLatestAnchor();
+        }
+        if (Input.GetKeyDown(undoAllButton))
+        {
+            DeleteAllAnchors();
+        }
+
+        UpdateLine();
     }
 
     public void Respawn()
@@ -83,13 +101,8 @@ public class PlayerController : MonoBehaviour
             relativePositions.Average(pos => pos.x),
             relativePositions.Average(pos => pos.y)
         ).normalized;
-        Vector2 posSum = new Vector2(
-            relativePositions.Sum(pos => pos.x),
-            relativePositions.Sum(pos => pos.y)
-        );
-        Vector2 force = direction * posSum.magnitude;
 
-        rb.AddForce(force * pullStrength);
+        rb.AddForce(direction * pullStrength);
     }
 
     public void DeleteAllAnchors()
@@ -98,6 +111,18 @@ public class PlayerController : MonoBehaviour
         {
             Destroy(anchor.gameObject);
         }
+    }
+
+    public void DeleteLatestAnchor()
+    {
+        Anchor latestAnchor = null;
+        foreach (Anchor anchor in FindAnchors())
+        {
+            if (latestAnchor == null || anchor.Age < latestAnchor.Age)
+                latestAnchor = anchor;
+        }
+        if (latestAnchor != null)
+            Destroy(latestAnchor.gameObject);
     }
 
     List<Anchor> FindAttachedAnchors()
@@ -116,5 +141,23 @@ public class PlayerController : MonoBehaviour
         }
 
         return anchors;
+    }
+
+    void UpdateLine(float lineZ = 1.0f)
+    {
+        List<Vector3> positions = new List<Vector3>()
+        {
+            new Vector3(transform.position.x, transform.position.y, lineZ),
+        };
+        FindAnchors()
+            .ForEach(anchor =>
+            {
+                positions.Add(
+                    new Vector3(anchor.transform.position.x, anchor.transform.position.y, lineZ)
+                );
+            });
+        lineRenderer.positionCount = positions.Count;
+        lineRenderer.SetPositions(positions.ToArray());
+        lineRenderer.numCornerVertices = positions.Count > 2 ? 1 : 0;
     }
 }
