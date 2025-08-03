@@ -15,6 +15,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private Transform spawnPoint;
 
+    [SerializeField]
+    private float fallThresholdY = -20f;
+
     [Header("Controls")]
     public KeyCode pullButton = KeyCode.Space;
     public KeyCode throwButton = KeyCode.Mouse0;
@@ -67,6 +70,16 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(undoAllButton))
         {
             DeleteAllAnchors();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Respawn();
+        }
+
+        if (transform.position.y < fallThresholdY)
+        {
+            Respawn();
         }
 
         UpdateLine();
