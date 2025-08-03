@@ -29,6 +29,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Camera mainCamera;
     private LineRenderer lineRenderer;
+    public AudioSource trowAudioSource;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -111,11 +113,18 @@ public class PlayerController : MonoBehaviour
         if (currentAnchors.Count >= maxAnchors)
             return;
 
+        TrowSound();
+
         Vector2 position = (Vector2)transform.position + direction * spawnDistance;
         GameObject anchor = Instantiate(anchorPrefab, position, Quaternion.identity);
         Rigidbody2D anchorRb = anchor.GetComponent<Rigidbody2D>();
 
         anchorRb.linearVelocity = direction * throwStrength;
+    }
+    void TrowSound() {
+
+        trowAudioSource.pitch = Random.Range(0.8f, 1.2f);
+        trowAudioSource.Play();
     }
 
     void PullAnchors()
