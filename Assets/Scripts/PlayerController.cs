@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
     public float throwStrength = 20.0f;
     public float spawnDistance = 2.0f;
     public float pullStrength = 1.0f;
-    public int maxAnchors = 3;
+    public int maxAnchors = 2;
 
     [SerializeField]
     private GameObject anchorPrefab;
@@ -102,7 +102,7 @@ public class PlayerController : MonoBehaviour
             relativePositions.Average(pos => pos.y)
         ).normalized;
 
-        rb.AddForce(direction * pullStrength);
+        rb.AddForce(direction * pullStrength * Time.deltaTime);
     }
 
     public void DeleteAllAnchors()
