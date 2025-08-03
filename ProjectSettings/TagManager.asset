@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Anchor
   - Ground
+  - Music
   layers:
   - Default
   - TransparentFX
