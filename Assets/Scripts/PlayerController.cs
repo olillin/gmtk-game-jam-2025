@@ -21,6 +21,9 @@ public class PlayerController : MonoBehaviour
     public KeyCode undoButton = KeyCode.Q;
     public KeyCode undoAllButton = KeyCode.A;
 
+    [Space]
+    public bool allowShootWhilePulling = false;
+
     private Rigidbody2D rb;
     private Camera mainCamera;
     private LineRenderer lineRenderer;
@@ -45,13 +48,16 @@ public class PlayerController : MonoBehaviour
         {
             PullAnchors();
         }
-        else if (Input.GetKeyUp(throwButton))
+        if (Input.GetKeyUp(throwButton))
         {
-            Vector2 mousePos = Input.mousePosition;
-            Vector2 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
+            if (!Input.GetKey(pullButton) || allowShootWhilePulling)
+            {
+                Vector2 mousePos = Input.mousePosition;
+                Vector2 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
 
-            Vector2 mouseDelta = mousePos - playerScreenPos;
-            ThrowRope(mouseDelta.normalized);
+                Vector2 mouseDelta = mousePos - playerScreenPos;
+                ThrowRope(mouseDelta.normalized);
+            }
         }
 
         if (Input.GetKeyDown(undoButton))

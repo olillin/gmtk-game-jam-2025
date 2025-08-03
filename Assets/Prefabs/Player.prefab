@@ -171,7 +171,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1214606759
-  m_SortingLayer: -1
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 0, b: 0, a: 1}
@@ -198,14 +198,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   throwStrength: 15
   spawnDistance: 1
-  pullStrength: 8
-  maxAnchors: 3
+  pullStrength: 2000
+  maxAnchors: 2
   anchorPrefab: {fileID: 4977636685057181334, guid: 2b802bdba615954c6a11eee7137692b4, type: 3}
   spawnPoint: {fileID: 0}
   pullButton: 32
   throwButton: 323
   undoButton: 113
   undoAllButton: 97
+  allowShootWhilePulling: 0
 --- !u!50 &8540657143793587790
 Rigidbody2D:
   serializedVersion: 5
