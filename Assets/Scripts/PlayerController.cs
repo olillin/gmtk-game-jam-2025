@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
     public float throwStrength = 20.0f;
     public float spawnDistance = 2.0f;
     public float pullStrength = 1.0f;
-    public int maxAnchors = 3;
+    public int maxAnchors = 2;
 
     [SerializeField]
     private GameObject anchorPrefab;
@@ -20,6 +20,9 @@ public class PlayerController : MonoBehaviour
     public KeyCode throwButton = KeyCode.Mouse0;
     public KeyCode undoButton = KeyCode.Q;
     public KeyCode undoAllButton = KeyCode.A;
+
+    [Space]
+    public bool allowShootWhilePulling = false;
 
     private Rigidbody2D rb;
     private Camera mainCamera;
@@ -45,13 +48,16 @@ public class PlayerController : MonoBehaviour
         {
             PullAnchors();
         }
-        else if (Input.GetKeyUp(throwButton))
+        if (Input.GetKeyUp(throwButton))
         {
-            Vector2 mousePos = Input.mousePosition;
-            Vector2 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
+            if (!Input.GetKey(pullButton) || allowShootWhilePulling)
+            {
+                Vector2 mousePos = Input.mousePosition;
+                Vector2 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
 
-            Vector2 mouseDelta = mousePos - playerScreenPos;
-            ThrowRope(mouseDelta.normalized);
+                Vector2 mouseDelta = mousePos - playerScreenPos;
+                ThrowRope(mouseDelta.normalized);
+            }
         }
 
         if (Input.GetKeyDown(undoButton))
@@ -102,7 +108,7 @@ public class PlayerController : MonoBehaviour
             relativePositions.Average(pos => pos.y)
         ).normalized;
 
-        rb.AddForce(direction * pullStrength);
+        rb.AddForce(direction * pullStrength * Time.deltaTime);
     }
 
     public void DeleteAllAnchors()
