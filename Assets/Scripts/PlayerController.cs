@@ -12,8 +12,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private GameObject anchorPrefab;
 
-    [SerializeField]
     private Transform spawnPoint;
+
+    [SerializeField]
+    private float fallThresholdY = -20f;
 
     [Header("Controls")]
     public KeyCode pullButton = KeyCode.Space;
@@ -34,6 +36,10 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         mainCamera = Camera.main;
         lineRenderer = GetComponent<LineRenderer>();
+
+        GameObject sp = new GameObject("PlayerSpawnPoint");
+        sp.transform.position = transform.position;
+        spawnPoint = sp.transform;
     }
 
     // Update is called once per frame
@@ -67,6 +73,16 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(undoAllButton))
         {
             DeleteAllAnchors();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Respawn();
+        }
+
+        if (transform.position.y < fallThresholdY)
+        {
+            Respawn();
         }
 
         UpdateLine();
