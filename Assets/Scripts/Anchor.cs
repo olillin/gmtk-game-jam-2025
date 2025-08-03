@@ -9,6 +9,10 @@ public class Anchor : MonoBehaviour
     }
 
     private float age = 0;
+    public float Age
+    {
+        get => age;
+    }
 
     [SerializeField]
     private float maxAge = 5.0f;
