@@ -88,6 +88,15 @@ public class PlayerController : MonoBehaviour
         UpdateLine();
     }
 
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(
+            new Vector3(-1000, fallThresholdY, 0f),
+            new Vector3(1000, fallThresholdY, 0f)
+        );
+    }
+
     public void Respawn()
     {
         DeleteAllAnchors();
